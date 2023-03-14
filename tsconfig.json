@@ -1,0 +1,38 @@
+{
+  "type": "commonjs",
+  "ts-node": {
+    "esm": true,
+    "compilerOptions": {
+      "module": "commonjs",
+      "moduleResolution": "node",
+      "baseUrl": ".",
+      "paths": {
+        "@test/*": ["tests/*"],
+        "@/*": ["src/*"]
+      }
+    }
+  },
+  "compilerOptions": {
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "target": "es6",
+    "lib": ["es6", "es2017"],
+    "moduleResolution": "node",
+    "declaration": true,
+    "allowJs": true,
+    "outDir": "bin",
+    "baseUrl": ".",
+    "strict": true,
+    "declarationMap": true,
+    "removeComments": true,
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": [
+    "node_modules/**/*",
+    "bower_components/**/*",
+    "jspm_packages/**/*"
+  ]
+}

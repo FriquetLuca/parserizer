@@ -17,17 +17,19 @@ export default function parse(txtContent: string, patternSet: IRule[], i: number
     }
     for(let j = 0; j < patternSet.length; j++) // Let's check all the possible patterns
     {
-      if(patternSet[j].isPattern(i, txtContent)) // It's the pattern, let's execute something
+      const currentPattern = patternSet[j];
+      const currentRule = currentPattern.copy ? currentPattern.copy() : currentPattern;
+      if(currentRule.isPattern(i, txtContent)) // It's the pattern, let's execute something
       {
         const lineData = countLines(txtContent, i);
-        const fetchResult = patternSet[j].fetch(i, txtContent, patternSet[j].isPatternEnd, patternSet); // Execute something then return the fetched result
+        const fetchResult = currentRule.fetch(i, txtContent, currentRule.isPatternEnd, patternSet); // Execute something then return the fetched result
         if(fetchResult.lastIndex !== undefined) {
           i = fetchResult.lastIndex; // Assign the new index
         } else {
           throw new Error('Missing returned lastIndex in a fetch.');
         }
         let resultObject: IDataResult = {
-          name: patternSet[j]?.name,
+          name: currentRule?.name,
           currentName: fetchResult?.name,
           begin: fetchResult?.begin,
           end: fetchResult?.end,

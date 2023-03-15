@@ -29,7 +29,11 @@ export default interface IRule {
    */
   isPatternEnd?: (i: number, t: string) => boolean,
   /**
-   * A function to handle
+   * A function to handle the data fetching.
    */
-  fetch: (i: number, t: string, isPatternEnd?: (i: number, t: string) => boolean, patternSet?: IRule[]) => IDataResult
+  fetch: (i: number, t: string, isPatternEnd?: (i: number, t: string) => boolean, patternSet?: IRule[]) => IDataResult,
+  /**
+   * Copy the rule for a clean regex check.
+   */
+  copy?: () => IRule
 }

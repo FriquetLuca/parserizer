@@ -1,3 +1,3 @@
-import Parserizer, { Seeker, DataResult, CharLine, Result, Rule } from "./bin/index";
+import Parserizer, { CharLine, DataResult, Result, Rule, Seeker, StringifyDebug, StringifyResult } from "./bin/index";
 export default Parserizer;
-export { Seeker, DataResult, CharLine, Result, Rule };
+export { CharLine, DataResult, Result, Rule, Seeker, StringifyDebug, StringifyResult };

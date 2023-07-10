@@ -20,10 +20,10 @@ export function StringifyDebug(parsedResult: ParsedEndResult | ParsedContent[], 
   return debugStringify(versatileTypeof(parsedResult) !== "array" ? (parsedResult as ParsedEndResult).result : parsedResult as ParsedContent[], spacing);
 }
 
-export function enclosedRegex(props: EnclosedRegexProps): EnclosedRegexTemplate {
+export function enclosedRegex(props: EnclosedRegexProps) {
   return encReg(props) as EnclosedRegexTemplate;
 }
 
-export function regex(props: RegexProps): RegexTemplate {
+export function regex(props: RegexProps) {
   return reg(props) as RegexTemplate;
 }

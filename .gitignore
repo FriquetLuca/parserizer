@@ -1,5 +1,4 @@
 lib
-!lib/bundle
 node_modules
 package-lock.json
 pnpm-lock.yaml

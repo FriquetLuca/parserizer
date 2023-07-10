@@ -1,6 +1,5 @@
-import ILine from "../interfaces/ILine";
-export default function countLines(content: string, maxIndex?: number): ILine {
-  const result: ILine = {
+export default function countLines(content: string, maxIndex?: number) {
+  const result = {
     lines: 1,
     lineChar: 0
   };

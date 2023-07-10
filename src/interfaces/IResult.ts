@@ -1,4 +1,4 @@
-import IDataResult from "@/interfaces/IDataResult";
+import IDataResult from "./IDataResult";
 /**
  * A representation of the result of a pattern.
  */

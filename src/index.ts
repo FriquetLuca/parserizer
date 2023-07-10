@@ -1,9 +1,9 @@
 // Interfaces
-import IDataResult from "@/interfaces/IDataResult";
-import ILine from "@/interfaces/ILine";
-import IResult from "@/interfaces/IResult";
-import IRule from "@/interfaces/IRule";
-import versatileTypeof from "@/utils/versatileTypeof";
+import IDataResult from "./interfaces/IDataResult";
+import ILine from "./interfaces/ILine";
+import IResult from "./interfaces/IResult";
+import IRule from "./interfaces/IRule";
+import versatileTypeof from "./utils/versatileTypeof";
 export {
   IDataResult as DataResult,
   ILine as CharLine,
@@ -11,10 +11,10 @@ export {
   IRule as Rule
 };
 
-import box from "@/patterns/box";
-import field from "@/patterns/field";
-import parse from "@/patterns/parse";
-import { debugResult, stringify } from "@/patterns/stringify";
+import box from "./patterns/box";
+import field from "./patterns/field";
+import parse from "./patterns/parse";
+import { debugResult, stringify } from "./patterns/stringify";
 type SeekPattern = {
   box: (name: string, beginRegex: RegExp, endRegex: RegExp, defaultBegin: string, defaultEnd: string, overridePatternSet?: IRule[] | undefined) => IRule;
   field: (name: string, regex: RegExp, defaultValue: string) => IRule;

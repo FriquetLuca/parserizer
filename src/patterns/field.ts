@@ -1,4 +1,4 @@
-import IRule from "@/interfaces/IRule";
+import IRule from "../interfaces/IRule";
 
 export default function field(name: string, regex: RegExp, defaultValue: string): IRule {
   let regExpResult: RegExpExecArray;

@@ -11,4 +11,4 @@ export default function versatileTypeof(parameter: any): string {
       return 'array';
   }
   return typeof parameter;
-};
+}

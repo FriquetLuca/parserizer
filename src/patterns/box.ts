@@ -1,5 +1,5 @@
-import parse from "@/patterns/parse";
-import type IRule from "@/interfaces/IRule";
+import parse from "../patterns/parse";
+import type IRule from "../interfaces/IRule";
 
 export default function box(name: string, beginRegex: RegExp, endRegex: RegExp, defaultBegin: string, defaultEnd: string, overridePatternSet?: IRule[]): IRule {
   let regExpResultA: RegExpExecArray;

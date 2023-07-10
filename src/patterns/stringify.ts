@@ -1,4 +1,4 @@
-import IDataResult from "@/interfaces/IDataResult";
+import IDataResult from "../interfaces/IDataResult";
 function generateSpace(d: number): string {
   let spacing = '';
   for(let i = 0; i < d; i++) {

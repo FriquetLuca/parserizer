@@ -1,38 +1,18 @@
 {
-  "type": "commonjs",
-  "ts-node": {
-    "esm": true,
-    "compilerOptions": {
-      "module": "commonjs",
-      "moduleResolution": "node",
-      "baseUrl": ".",
-      "paths": {
-        "@test/*": ["tests/*"],
-        "@/*": ["src/*"]
-      }
-    }
-  },
   "compilerOptions": {
-    "module": "commonjs",
-    "esModuleInterop": true,
-    "target": "es6",
-    "lib": ["es6", "es2017"],
-    "moduleResolution": "node",
-    "declaration": true,
-    "allowJs": true,
-    "outDir": "bin",
-    "baseUrl": ".",
+    "target": "ES2015",
+    "module": "ES2020",
     "strict": true,
-    "declarationMap": true,
-    "removeComments": true,
-    "paths": {
-      "@/*": ["src/*"]
-    }
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "./lib/esm",
+    "declaration": true
   },
-  "include": ["src/**/*"],
+  "include": [
+    "./src"
+  ],
   "exclude": [
-    "node_modules/**/*",
-    "bower_components/**/*",
-    "jspm_packages/**/*"
+    "./tests"
   ]
 }

@@ -1,4 +1,4 @@
-import ILine from "@/interfaces/ILine";
+import ILine from "../interfaces/ILine";
 export default function countLines(content: string, maxIndex?: number): ILine {
   const result: ILine = {
     lines: 1,

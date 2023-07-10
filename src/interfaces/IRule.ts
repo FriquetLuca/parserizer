@@ -1,4 +1,4 @@
-import IDataResult from "@/interfaces/IDataResult";
+import IDataResult from "./IDataResult";
 
 /**
  * A basic rule to catch a pattern.

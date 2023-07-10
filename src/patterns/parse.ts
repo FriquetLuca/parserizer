@@ -1,7 +1,7 @@
-import countLines from "@/utils/countLines";
-import type IDataResult from "@/interfaces/IDataResult";
-import type IResult from "@/interfaces/IResult";
-import type IRule from "@/interfaces/IRule";
+import countLines from "../utils/countLines";
+import type IDataResult from "../interfaces/IDataResult";
+import type IResult from "../interfaces/IResult";
+import type IRule from "../interfaces/IRule";
 
 export default function parse(txtContent: string, patternSet: IRule[], i: number = 0, endPattern: (i: number, t: string) => boolean = (i: number, t: string) => { return false; }): IResult {
   const subdivided: IDataResult[] = []; // A result called subdivided since it's the input subdivided in multiple pieces.

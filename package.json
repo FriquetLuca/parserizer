@@ -1,9 +1,10 @@
 {
   "name": "parserizer",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "A simple way to parse data.",
   "main": "./lib/cjs/index.js",
   "module": "./lib/esm/index.js",
+  "bundle": "./lib/bundle/parserizer.js",
   "files": [
     "lib/**/*"
   ],
@@ -15,7 +16,25 @@
     "clear": "rm -rf lib",
     "prepublishOnly": "npm run build"
   },
-  "keywords": [],
+  "keywords": [
+    "data",
+    "handling",
+    "parse",
+    "parsing",
+    "stack",
+    "based",
+    "stack-based",
+    "parser",
+    "stringify",
+    "rule",
+    "rules",
+    "regex",
+    "enclosed",
+    "escaped",
+    "string",
+    "typeof",
+    "versatile"
+  ],
   "author": "FriquetLuca",
   "license": "MIT",
   "repository": {

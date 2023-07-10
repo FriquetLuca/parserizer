@@ -1,7 +1,5 @@
 import countLines from "../utils/countLines";
 import { type Rules } from "../types/rules";
-import { type EnclosedRegexTemplate } from "../types/enclosedRegexTemplate";
-import { type RegexTemplate } from "../types/regexTemplate";
 import { type ParsedContent } from "../types/parsedContent";
 import { type ParsedEndResult } from "../types/parsedEndResult";
 
@@ -21,34 +19,30 @@ export function parse(txtContent: string, patternSet: Rules, i: number = 0, endP
     {
       const currentPattern = patternSet[j];
       if(currentPattern.type === "enclosed") {
-        const enclosedRule = currentPattern.copy() as EnclosedRegexTemplate;
+        const enclosedRule = currentPattern.copy();
         if(enclosedRule.isPattern(i, txtContent)) // It's the pattern, let's execute something
         {
-          const lineData = countLines(txtContent, i);
           const fetchResult = enclosedRule.fetch(i, txtContent, enclosedRule.isPatternEnd, patternSet); // Execute something then return the fetched result
-          if(fetchResult.lastIndex !== undefined) {
-            i = fetchResult.lastIndex; // Assign the new index
-          } else {
+          if(fetchResult.lastIndex === undefined) {
             throw new Error('Missing returned lastIndex in a fetch.');
           }
+          const lineData = countLines(txtContent, i);
+          i = fetchResult.lastIndex; // Assign the new index else
           subdivided.push({
             ...fetchResult,
-            name: enclosedRule?.name,
             ...lineData
           }); // Insert an array of 2 elements (name and content) of the tested pattern inside our subdivided variable.
           break; // No need to check more pattern, we've got one already
         }
       } else {
-        const currentRule = currentPattern as RegexTemplate;
-        if(currentRule.isPattern(i, txtContent)) // It's the pattern, let's execute something
+        if(currentPattern.isPattern(i, txtContent)) // It's the pattern, let's execute something
         {
-          const lineData = countLines(txtContent, i);
-          const fetchResult = currentRule.fetch(i, txtContent); // Execute something then return the fetched result
-          if(fetchResult.lastIndex !== undefined) {
-            i = fetchResult.lastIndex; // Assign the new index
-          } else {
+          const fetchResult = currentPattern.fetch(i, txtContent); // Execute something then return the fetched result
+          if(fetchResult.lastIndex === undefined) {
             throw new Error('Missing returned lastIndex in a fetch.');
           }
+          const lineData = countLines(txtContent, i);
+          i = fetchResult.lastIndex; // Assign the new index
           subdivided.push({
             ...fetchResult,
             ...lineData,

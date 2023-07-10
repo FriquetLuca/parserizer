@@ -1,7 +1,17 @@
-export default function generateSpace(d: number): string {
-  let spacing = '';
-  for(let i = 0; i < d; i++) {
-    spacing = `${spacing}\t`;
+export function generateSpace(count: number) {
+  let spaces = '';
+  if(count <= 0) {
+    return spaces;
   }
-  return spacing;
+
+  let base = "\t";
+  while(count > 0) {
+    if(count % 2 === 1) {
+      spaces = `${spaces}${base}`;
+    }
+    count = Math.floor(count / 2);
+    base = `${base}${base}`;
+  }
+  
+  return spaces;
 }

@@ -1,4 +1,5 @@
 import { parse, enclosedRegex, StringifyResult } from "../src";
+
 describe('EncloseRegex', () => {
   describe('Parenthesis', () => {
     const prts = enclosedRegex({

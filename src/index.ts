@@ -3,11 +3,11 @@ export * from "./types";
 export * from "./utils";
 
 import { EnclosedRegexProps, RegexProps } from "./interfaces";
-export { parse } from "./parser";
+import { parse as parser } from "./parser";
 
 import { stringify, debugStringify } from "./parser";
 import { enclosedRegex as encReg, regex as reg } from "./stack";
-import { EnclosedRegexTemplate, RegexTemplate } from "./types";
+import { EnclosedRegexTemplate, RegexTemplate, Rules } from "./types";
 import { type ParsedContent } from "./types/parsedContent";
 import { type ParsedEndResult } from "./types/parsedEndResult";
 import { versatileTypeof } from "./utils";
@@ -26,4 +26,8 @@ export function enclosedRegex(props: EnclosedRegexProps) {
 
 export function regex(props: RegexProps) {
   return reg(props) as RegexTemplate;
+}
+
+export function parse(input: string, ruleSet: Rules) {
+  return parser(input, ruleSet);
 }

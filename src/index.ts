@@ -3,8 +3,7 @@ export * from "./types";
 export * from "./utils";
 
 import { EnclosedRegexProps, RegexProps } from "./interfaces";
-import { parse } from "./parser";
-export default parse;
+export { parse } from "./parser";
 
 import { stringify, debugStringify } from "./parser";
 import { enclosedRegex as encReg, regex as reg } from "./stack";

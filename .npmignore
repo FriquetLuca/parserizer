@@ -1,10 +1,10 @@
+.vscode
 node_modules
 src
 tests
-.vscode
-package-lock.json
+babel.config.js
 esbuild.js
 jest.config.js
-babel.config.js
+package-lock.json
 tsconfig.json
 tsconfig-cjs.json

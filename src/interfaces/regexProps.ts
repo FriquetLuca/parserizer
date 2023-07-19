@@ -1,6 +1,6 @@
 import { type RegexHandler } from "./regexHandler";
 
-export interface RegexProps {
+export interface RegexProps<T> {
   name: string;
-  handler: RegexHandler;
+  handler: RegexHandler<T>;
 }

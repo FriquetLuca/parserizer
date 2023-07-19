@@ -3,8 +3,8 @@ import { type Rules } from "../types/rules";
 import { type ParsedContent } from "../types/parsedContent";
 import { type ParsedEndResult } from "../types/parsedEndResult";
 
-export function parse(txtContent: string, patternSet: Rules, i: number = 0, endPattern: (i: number, t: string) => boolean = () => { return false; }) {
-  const subdivided: ParsedContent[] = []; // A result called subdivided since it's the input subdivided in multiple pieces.
+export function parse<T>(txtContent: string, patternSet: Rules<T>, i: number = 0, endPattern: (i: number, t: string) => boolean = () => { return false; }) {
+  const subdivided: ParsedContent<T>[] = []; // A result called subdivided since it's the input subdivided in multiple pieces.
   for(; i < txtContent.length; i++) // Let's navigate the input
   {
     if(endPattern(i, txtContent)) // We're in a nested pattern that just ended
@@ -13,7 +13,7 @@ export function parse(txtContent: string, patternSet: Rules, i: number = 0, endP
         isPatternEnd: true,
         result: subdivided,
         lastIndex: i
-      } as ParsedEndResult;
+      } as ParsedEndResult<T>;
     }
     for(let j = 0; j < patternSet.length; j++) // Let's check all the possible patterns
     {
@@ -56,5 +56,5 @@ export function parse(txtContent: string, patternSet: Rules, i: number = 0, endP
     isPatternEnd: false,
     result: subdivided,
     lastIndex: i - 1
-  } as ParsedEndResult;
+  } as ParsedEndResult<T>;
 }

@@ -1,5 +1,5 @@
-export interface RegexHandler {
+export interface RegexHandler<T> {
   regex: RegExp;
-  fallbackValue?: string;
-  overrideContent?: (fullResult: string, groups: string[]) => string;
+  fallbackValue?: T;
+  overrideContent?: (fullResult: string, groups: string[]) => T;
 };

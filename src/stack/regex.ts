@@ -1,6 +1,7 @@
 import { RegexProps } from "../interfaces/regexProps";
 
-export function regex({ name, handler }: RegexProps) {
+export type regex<T> = typeof regex<T>;
+export function regex<T>({ name, handler }: RegexProps<T>) {
   let regExpResult: RegExpExecArray;
   return {
     type: "any",

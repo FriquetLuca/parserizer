@@ -2,7 +2,8 @@ import { type EnclosedRegexProps } from "../interfaces/enclosedRegexProps";
 import { parse } from "../parser/parse";
 import { type Rules } from "../types/rules";
 
-export function enclosedRegex({ name, openHandler, closeHandler, overridePatternSet }: EnclosedRegexProps) {
+export type enclosedRegex<T> = typeof enclosedRegex<T>;
+export function enclosedRegex<T>({ name, openHandler, closeHandler, overridePatternSet }: EnclosedRegexProps<T>) {
   let regExpResultA: RegExpExecArray;
   let regExpResultB: RegExpExecArray;
   return {
@@ -10,7 +11,7 @@ export function enclosedRegex({ name, openHandler, closeHandler, overridePattern
     name: name,
     begin: openHandler?.fallbackValue,
     end: closeHandler?.fallbackValue,
-    copy: () => enclosedRegex({
+    copy: () => enclosedRegex<T>({
       name,
       openHandler: { ...openHandler },
       closeHandler: { ...closeHandler },
@@ -32,7 +33,7 @@ export function enclosedRegex({ name, openHandler, closeHandler, overridePattern
       }
       return false;
     },
-    fetch: (index: number, txt: string, endPattern: (i: number, txt: string) => boolean, patternSet: Rules) => {
+    fetch: (index: number, txt: string, endPattern: (i: number, txt: string) => boolean, patternSet: Rules<T>) => {
       const p = parse(txt, patternSet ?? [], index + regExpResultA[0].length, endPattern); // Let's look for nested pattern over here..
       // We could filter patternSet if we wanted to get rid of some functions for this case or use whatever we want anyway.
       if(p.isPatternEnd) // It's the end of our pattern

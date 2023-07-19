@@ -2,32 +2,32 @@ export * from "./interfaces";
 export * from "./types";
 export * from "./utils";
 
-import { EnclosedRegexProps, RegexProps } from "./interfaces";
+import { type EnclosedRegexProps, type RegexProps } from "./interfaces";
 import { parse as parser } from "./parser";
 
 import { stringify, debugStringify } from "./parser";
 import { enclosedRegex as encReg, regex as reg } from "./stack";
-import { EnclosedRegexTemplate, RegexTemplate, Rules } from "./types";
+import { type EnclosedRegexTemplate, type RegexTemplate, type Rules } from "./types";
 import { type ParsedContent } from "./types/parsedContent";
 import { type ParsedEndResult } from "./types/parsedEndResult";
 import { versatileTypeof } from "./utils";
 
-export function StringifyResult(parsedResult: ParsedEndResult | ParsedContent[], spacing: boolean = true) {
-  return stringify(versatileTypeof(parsedResult) !== "array" ? (parsedResult as ParsedEndResult).result : parsedResult as ParsedContent[], spacing);
+export function StringifyResult<T>(parsedResult: ParsedEndResult<T> | ParsedContent<T>[], refineElement?: ((element: string | T | undefined) => string) | undefined, spacing: boolean = true) {
+  return stringify(versatileTypeof(parsedResult) !== "array" ? (parsedResult as ParsedEndResult<T>).result : parsedResult as ParsedContent<T>[], refineElement, spacing);
 }
 
-export function StringifyDebug(parsedResult: ParsedEndResult | ParsedContent[], spacing: boolean = true) {
-  return debugStringify(versatileTypeof(parsedResult) !== "array" ? (parsedResult as ParsedEndResult).result : parsedResult as ParsedContent[], spacing);
+export function StringifyDebug<T>(parsedResult: ParsedEndResult<T> | ParsedContent<T>[], refineElement?: ((element: string | T | undefined) => string) | undefined, spacing: boolean = true) {
+  return debugStringify(versatileTypeof(parsedResult) !== "array" ? (parsedResult as ParsedEndResult<T>).result : parsedResult as ParsedContent<T>[], refineElement, spacing);
 }
 
-export function enclosedRegex(props: EnclosedRegexProps) {
-  return encReg(props) as EnclosedRegexTemplate;
+export function enclosedRegex<T>(props: EnclosedRegexProps<T>) {
+  return encReg(props) as EnclosedRegexTemplate<T>;
 }
 
-export function regex(props: RegexProps) {
-  return reg(props) as RegexTemplate;
+export function regex<T>(props: RegexProps<T>) {
+  return reg(props) as RegexTemplate<T>;
 }
 
-export function parse(input: string, ruleSet: Rules) {
+export function parse<T>(input: string, ruleSet: Rules<T>) {
   return parser(input, ruleSet);
 }

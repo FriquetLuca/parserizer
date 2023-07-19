@@ -1,5 +1,5 @@
-export type ParsedResult = {
+export type ParsedResult<T> = {
   name: string;
-  content: string;
+  content: string | T;
   lastIndex: number;
 };

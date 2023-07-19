@@ -1,4 +1,4 @@
-import { enclosedRegex } from "../stack/enclosedRegex";
+import { type enclosedRegex } from "../stack/enclosedRegex";
 import { type Merge } from "./merge";
 
-export type EnclosedRegexTemplate = Merge<Omit<ReturnType<typeof enclosedRegex>, "type"> & { type: "enclosed" }>;
+export type EnclosedRegexTemplate<T> = Merge<Omit<ReturnType<enclosedRegex<T>>, "type"> & { type: "enclosed" }>;

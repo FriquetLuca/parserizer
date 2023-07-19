@@ -1,7 +1,8 @@
 import { ParsedContent } from "./parsedContent";
 
-export type ParsedEndResult = {
+export type ParsedEndResult<T> = {
+  nested?: false;
   isPatternEnd: boolean;
-  result: ParsedContent[];
+  result: ParsedContent<T>[];
   lastIndex: number;
 }

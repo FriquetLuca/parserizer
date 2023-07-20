@@ -31,7 +31,7 @@ export function parse<T>(txtContent: string, patternSet: Rules<T>, i: number = 0
           subdivided.push({
             ...fetchResult,
             ...lineData
-          }); // Insert an array of 2 elements (name and content) of the tested pattern inside our subdivided variable.
+          } as ParsedContent<T>); // Insert an array of 2 elements (name and content) of the tested pattern inside our subdivided variable.
           break; // No need to check more pattern, we've got one already
         }
       } else {
@@ -46,7 +46,7 @@ export function parse<T>(txtContent: string, patternSet: Rules<T>, i: number = 0
           subdivided.push({
             ...fetchResult,
             ...lineData,
-          }); // Insert an array of 2 elements (name and content) of the tested pattern inside our subdivided variable.
+          } as ParsedContent<T>); // Insert an array of 2 elements (name and content) of the tested pattern inside our subdivided variable.
           break; // No need to check more pattern, we've got one already
         }
       }      

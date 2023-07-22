@@ -10,9 +10,10 @@
   ],
   "scripts": {
     "test": "jest",
-    "build": "npm run clear && npm run build:node && npm run build:browser",
+    "build": "npm run clear && npm run build:esm && npm run build:node && npm run build:browser",
     "build:browser": "node esbuild",
-    "build:node": "tsc -p tsconfig.json && tsc -p tsconfig-cjs.json",
+    "build:esm": "tsc -p tsconfig.json",
+    "build:node": "tsc -p tsconfig-cjs.json",
     "clear": "rm -rf lib",
     "prepublishOnly": "npm run build"
   },

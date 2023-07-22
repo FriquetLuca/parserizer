@@ -1,4 +1,4 @@
-import { parse, enclosedRegex, StringifyResult, regex, ParsedContent } from "../src";
+import * as parser from "../src";
 /*
   word: (name: string, defaultValue: string, caseInsensitive: boolean = false) => Seeker.field(name, new RegExp("^[^\\W\\d_]+", caseInsensitive ? "i" : ""), defaultValue),
   keyword: (name: string, keyword: string, caseInsensitive: boolean = false) => Seeker.field(name, new RegExp(`^${keyword}\\b`, caseInsensitive ? "i" : ""), name),
@@ -10,7 +10,7 @@ import { parse, enclosedRegex, StringifyResult, regex, ParsedContent } from "../
 describe('EncloseRegex', () => {
   describe('Container', () => {
     describe('Parse simple parenthesis and any characters', () => {
-      const prts = enclosedRegex<string>({
+      const prts = parser.enclosedRule<string>({
         name: "parenthesis",
         openHandler: {
           regex: /^\{/
@@ -19,33 +19,48 @@ describe('EncloseRegex', () => {
           regex: /^\}/
         }
       });
-      const grabAny = regex<string>({
+      const grabAny = parser.rule<string>({
         name: "any",
         handler: {
           regex: /^.{1}/
         }
       })
-      const parserized = parse<string>("Hello, my friend's name is {name}.", [ prts, grabAny ]);
+      const parsed = parser.parse("Hello, my friend's name is {name}.", [ prts, grabAny ]);
+      
       const testCaseOne = 'The parenthesis is correctly parsed with any characters';
+      describe(testCaseOne, () => {
+        it('should be the same', () => {
+          expect(parser.stringify(parsed)).toEqual("Hello, my friend's name is {name}.")
+        })
+      })
+      describe(testCaseOne, () => {
+        it('should be the same (with spaces)', () => {
+          expect(parser.stringify(parsed, { spacing: true })).toEqual("H\r\ne\r\nl\r\nl\r\no\r\n,\r\n \r\nm\r\ny\r\n \r\nf\r\nr\r\ni\r\ne\r\nn\r\nd\r\n'\r\ns\r\n \r\nn\r\na\r\nm\r\ne\r\n \r\ni\r\ns\r\n \r\n{\r\n\tn\r\n\ta\r\n\tm\r\n\te\r\n\r\n}\r\n.\r\n")
+        })
+      })
+      
       const testCaseTwo = 'The parenthesis is correctly extracted';
-      describe(testCaseOne, () => {
-        it('should be the same (with spaces)', () => {
-          expect(StringifyResult(parserized)).toEqual("H\r\ne\r\nl\r\nl\r\no\r\n,\r\n \r\nm\r\ny\r\n \r\nf\r\nr\r\ni\r\ne\r\nn\r\nd\r\n'\r\ns\r\n \r\nn\r\na\r\nm\r\ne\r\n \r\ni\r\ns\r\n \r\n{\r\n\tn\r\n\ta\r\n\tm\r\n\te\r\n\r\n}\r\n.\r\n")
-        })
-      })
-      describe(testCaseOne, () => {
-        it('should be the same (without spaces)', () => {
-          expect(StringifyResult(parserized, undefined, false)).toEqual("Hello, my friend's name is {name}.")
+      describe(testCaseTwo, () => {
+        it('should be the same', () => {
+          expect(parser.stringify(parsed.result.filter(item => item.name === "parenthesis"))).toEqual("{name}")
         })
       })
       describe(testCaseTwo, () => {
         it('should be the same (with spaces)', () => {
-          expect(StringifyResult(parserized.result.filter(item => item.name === "parenthesis"))).toEqual("{\r\n\tn\r\n\ta\r\n\tm\r\n\te\r\n\r\n}\r\n")
+          expect(parser.stringify(parsed.result.filter(item => item.name === "parenthesis"), { spacing: true })).toEqual("{\r\n\tn\r\n\ta\r\n\tm\r\n\te\r\n\r\n}\r\n")
         })
       })
-      describe(testCaseTwo, () => {
-        it('should be the same (without spaces)', () => {
-          expect(StringifyResult(parserized.result.filter(item => item.name === "parenthesis"), undefined, false)).toEqual("{name}")
+      
+      const testCaseThree = 'The parenthesis\'s content is correctly extracted';
+      const filterParenthesis = parsed.result.filter(item => item.type === "enclosed" && item.name === "parenthesis") as parser.CurrentEnclosedResult<string>[];
+      describe(testCaseThree, () => {
+        it('should be the same', () => {
+          expect(parser.stringify(filterParenthesis[0].content)).toEqual("name")
+        })
+      })
+      describe(testCaseThree, () => {
+        it('should be the same (with spaces)', () => {
+          expect(parser.stringify(filterParenthesis[0].content, { spacing: true })).toEqual("n\r\na\r\nm\r\ne\r\n")
         })
       })
     })

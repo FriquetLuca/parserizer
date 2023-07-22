@@ -1,33 +1,34 @@
 export * from "./interfaces";
-export * from "./types";
-export * from "./utils";
+export * as utils from "./utils";
+export * as matchers from "./matchers";
 
-import { type EnclosedRegexProps, type RegexProps } from "./interfaces";
-import { parse as parser } from "./parser";
+import type { ParserContentResult, ParserResult, ParserRules, StringifyOptions } from "./interfaces";
+import { parse as parser, stringify as strgfy, debugStringify as debugstrgfy } from "./parser";
+import { getTypeof } from "./utils";
+export { rule, enclosedRule } from "./rules";
 
-import { stringify, debugStringify } from "./parser";
-import { enclosedRegex as encReg, regex as reg } from "./stack";
-import { type EnclosedRegexTemplate, type RegexTemplate, type Rules } from "./types";
-import { type ParsedContent } from "./types/parsedContent";
-import { type ParsedEndResult } from "./types/parsedEndResult";
-import { versatileTypeof } from "./utils";
-
-export function StringifyResult<T>(parsedResult: ParsedEndResult<T> | ParsedContent<T>[], refineElement?: ((element: string | T | undefined) => string) | undefined, spacing: boolean = true) {
-  return stringify(versatileTypeof(parsedResult) !== "array" ? (parsedResult as ParsedEndResult<T>).result : parsedResult as ParsedContent<T>[], refineElement, spacing);
+/**
+ * Stringify a parsed result or parsed content as a string.
+ * @param parsedResult The parsed result or the parsed content to stringify.
+ * @param options Options for how to handle the stringifization of elements.
+ * @param debug Allow for a debugging visualisation of the elements as a string.
+ * @returns The stringified content of the parsed content.
+ */
+export function stringify<T>(parsedResult: ParserResult<T> | ParserContentResult<T> | null, options?: StringifyOptions<T>, debug: boolean = false) {
+  if(parsedResult === null) {
+    return "";
+  }
+  if(debug) {
+    return debugstrgfy(getTypeof(parsedResult) !== "array" ? (parsedResult as ParserResult<T>).result : parsedResult as ParserContentResult<T>, options);
+  }
+  return strgfy(getTypeof(parsedResult) !== "array" ? (parsedResult as ParserResult<T>).result : parsedResult as ParserContentResult<T>, options);
 }
-
-export function StringifyDebug<T>(parsedResult: ParsedEndResult<T> | ParsedContent<T>[], refineElement?: ((element: string | T | undefined) => string) | undefined, spacing: boolean = true) {
-  return debugStringify(versatileTypeof(parsedResult) !== "array" ? (parsedResult as ParsedEndResult<T>).result : parsedResult as ParsedContent<T>[], refineElement, spacing);
-}
-
-export function enclosedRegex<T>(props: EnclosedRegexProps<T>) {
-  return encReg(props) as EnclosedRegexTemplate<T>;
-}
-
-export function regex<T>(props: RegexProps<T>) {
-  return reg(props) as RegexTemplate<T>;
-}
-
-export function parse<T>(input: string, ruleSet: Rules<T>) {
+/**
+ * Parse the content of the input string.
+ * @param input The string to parse.
+ * @param ruleSet The rules to apply to the input string.
+ * @returns The parsed result of the content of the input string.
+ */
+export function parse<T>(input: string, ruleSet: ParserRules<T>) {
   return parser(input, ruleSet);
 }

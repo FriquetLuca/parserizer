@@ -1,21 +1,20 @@
-import { type ParsedResult, type ParsedContent, type ParsedEnclosedResult } from "../types";
-import { generateSpace } from "../utils/generateSpace";
+import type { CurrentEnclosedResult, CurrentErrorResult, CurrentResult, ParserContentResult, StringifyOptions } from "../interfaces";
+import { duplicateStringContent } from "../utils/duplicateStringContent";
 
-export function stringify<T>(nodes: ParsedContent<T>[], refineElement?: (element: T | string | undefined) => string, spacing: boolean = false, spaceAmount: number = 1, depth: number = 0)
-{
-  const space = spacing ? generateSpace(spaceAmount * depth) : '';
-  const lineReturn = spacing ? '\r\n' : '';
+export function stringify<T>(nodes: ParserContentResult<T>, options?: StringifyOptions<T>, depth: number = 0) {
+  const space = options?.spacing ? duplicateStringContent("\t", (options?.spaceAmount ?? 1) * depth) : '';
+  const lineReturn = options?.spacing ? '\r\n' : '';
   let result = '';
   for(let i = 0; i < nodes.length; i++) {
     const node = nodes[i];
-    if((node as ParsedEnclosedResult<T>).nested) { // This node is a sub element (an array if nothing goes wrong)
-      result = `${result}${space}${(refineElement && refineElement((node as ParsedEnclosedResult<T>).begin)) ?? (node as ParsedEnclosedResult<T>).begin}${lineReturn}`;
-      if(!(node as ParsedEnclosedResult<T>).error) {
-        result = `${result}${stringify((node as ParsedEnclosedResult<T>).content ?? [], refineElement, spacing, spaceAmount, depth + 1)}${lineReturn}${space}${(refineElement && refineElement((node as ParsedEnclosedResult<T>).end)) ?? (node as ParsedEnclosedResult<T>).end}${lineReturn}`;
+    if((node as CurrentEnclosedResult<T>).nested) { // This node is a sub element (an array if nothing goes wrong)
+      result = `${result}${space}${(options?.refineElement && options.refineElement((node as CurrentEnclosedResult<T>).begin)) ?? (node as CurrentEnclosedResult<T>).begin}${lineReturn}`;
+      if(!(node as CurrentErrorResult<T>).error) {
+        result = `${result}${stringify((node as CurrentEnclosedResult<T>).content ?? [], options, depth + 1)}${lineReturn}${space}${(options?.refineElement && options.refineElement((node as CurrentEnclosedResult<T>).end)) ?? (node as CurrentEnclosedResult<T>).end}${lineReturn}`;
       }
     }
     else { // It's a T or string, ez pz let's write it with some spacing
-      result = `${result}${space}${(refineElement && refineElement((node as ParsedResult<T>).content)) ?? (node as ParsedResult<T>).content}${lineReturn}`;
+      result = `${result}${space}${(options?.refineElement && options.refineElement((node as CurrentResult<T>).content)) ?? (node as CurrentResult<T>).content}${lineReturn}`;
     }
   }
   return result;

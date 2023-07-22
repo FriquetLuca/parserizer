@@ -1,8 +1,8 @@
-import type { CurrentEnclosedResult, CurrentErrorResult, CurrentResult, ParserResult, ParserRules } from "../interfaces";
+import type { ParserContentResult, ParserResult, ParserRules } from "../interfaces";
 import { countLines } from "../utils";
 
 export function parse<T extends unknown = string>(txtContent: string, patternSet: ParserRules<T>, i: number = 0, endPattern: (i: number, t: string) => boolean = () => { return false; }) {
-  const subdivided: ((CurrentResult<T> | CurrentEnclosedResult<T> | CurrentErrorResult<T>) & { lines: number; lineChar: number; })[] = []; // A result called subdivided since it's the input subdivided in multiple pieces.
+  const subdivided: ParserContentResult<T> = []; // A result called subdivided since it's the input subdivided in multiple pieces.
   for(; i < txtContent.length; i++) // Let's navigate the input
   {
     if(endPattern(i, txtContent)) // We're in a nested pattern that just ended

@@ -5,6 +5,13 @@ export interface CurrentResult<T> {
   lastIndex: number
 }
 
+export interface CurrentCollapseResult<T> {
+  type: "collapse",
+  name: string,
+  content: string | T | null,
+  lastIndex: number
+}
+
 interface EnclosedResult {
   type: "enclosed",
   name: string
@@ -27,7 +34,7 @@ export interface CurrentErrorResult<T> extends EnclosedResult {
   end: T | undefined
 }
 
-export type ParserAnyResult<T> = CurrentResult<T> | CurrentEnclosedResult<T> | CurrentErrorResult<T>;
+export type ParserAnyResult<T> = CurrentResult<T> | CurrentCollapseResult<T> | CurrentEnclosedResult<T> | CurrentErrorResult<T>;
 
 export type ParserContentResult<T> = (ParserAnyResult<T> & {
   lines: number;

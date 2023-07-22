@@ -10,7 +10,7 @@ import * as parser from "../src";
 describe('EncloseRegex', () => {
   describe('Container', () => {
     describe('Parse simple parenthesis and any characters', () => {
-      const prts = parser.enclosedRule<string>({
+      const prts = parser.enclosedRule({
         name: "parenthesis",
         openHandler: {
           regex: /^\{/
@@ -19,7 +19,7 @@ describe('EncloseRegex', () => {
           regex: /^\}/
         }
       });
-      const grabAny = parser.rule<string>({
+      const grabAny = parser.rule({
         name: "any",
         handler: {
           regex: /^.{1}/

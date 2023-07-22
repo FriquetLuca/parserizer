@@ -14,10 +14,7 @@ export { rule, enclosedRule } from "./rules";
  * @param debug Allow for a debugging visualisation of the elements as a string.
  * @returns The stringified content of the parsed content.
  */
-export function stringify<T>(parsedResult: ParserResult<T> | ParserContentResult<T> | null, options?: StringifyOptions<T>, debug: boolean = false) {
-  if(parsedResult === null) {
-    return "";
-  }
+export function stringify<T>(parsedResult: ParserResult<T> | ParserContentResult<T>, options?: StringifyOptions<T>, debug: boolean = false) {
   if(debug) {
     return debugstrgfy(getTypeof(parsedResult) !== "array" ? (parsedResult as ParserResult<T>).result : parsedResult as ParserContentResult<T>, options);
   }
@@ -29,6 +26,6 @@ export function stringify<T>(parsedResult: ParserResult<T> | ParserContentResult
  * @param ruleSet The rules to apply to the input string.
  * @returns The parsed result of the content of the input string.
  */
-export function parse<T>(input: string, ruleSet: ParserRules<T>) {
+export function parse<T extends unknown = string>(input: string, ruleSet: ParserRules<T>) {
   return parser(input, ruleSet);
 }

@@ -1,4 +1,4 @@
-import type { EnclosedRule, EnclosedRuleProps, CurrentEnclosedResult, CurrentErrorResult, ParserRules } from "../interfaces";
+import type { CurrentCollapseResult, CurrentEnclosedResult, CurrentErrorResult, EnclosedRule, EnclosedRuleProps, ParserRules } from "../interfaces";
 import { parse } from "../parser";
 
 /**
@@ -6,7 +6,7 @@ import { parse } from "../parser";
  * @param param0 The parameters to define an enclosed rule.
  * @returns An enclosed rule to handle nested content.
  */
-export function enclosedRule<T extends unknown = string>({ name, openHandler, closeHandler, overridePatternSet }: EnclosedRuleProps<T>): EnclosedRule<T> {
+export function enclosedRule<T extends unknown = string>({ name, openHandler, closeHandler, overridePatternSet, collapse }: EnclosedRuleProps<T>): EnclosedRule<T> {
   let regExpResultA: RegExpExecArray;
   let regExpResultB: RegExpExecArray;
   return {
@@ -43,20 +43,30 @@ export function enclosedRule<T extends unknown = string>({ name, openHandler, cl
       if(p.type === "endResult") // It's the end of our pattern
       {
         const fullMatchB = regExpResultB[0];
+        const beginEnclose = openHandler.overrideContent
+          ? openHandler.overrideContent(fullMatchA, ...(regExpResultA ? regExpResultA.splice(1, regExpResultA.length) : []))
+          : txt.substring(index, index + fullMatchA.length);
+        const endEnclose = closeHandler.overrideContent
+          ? closeHandler.overrideContent(fullMatchB, ...(regExpResultB ? regExpResultB.splice(1, regExpResultB.length) : []))
+          : txt.substring(p.lastIndex, p.lastIndex + fullMatchB.length);
+        if(collapse) {
+          return {
+            type: "collapse",
+            name,
+            content: collapse(beginEnclose, p.result, endEnclose),
+            lastIndex: p.lastIndex + fullMatchB.length - 1
+          } as CurrentCollapseResult<T>
+        }
         return {
           type: "enclosed",
           name: name,
           content: p.result,
           error: false,
           nested: true,
-          begin: openHandler.overrideContent
-            ? openHandler.overrideContent(fullMatchA, ...(regExpResultA ? regExpResultA.splice(1, regExpResultA.length) : []))
-            : txt.substring(index, index + fullMatchA.length),
-          end: closeHandler.overrideContent
-            ? closeHandler.overrideContent(fullMatchB, ...(regExpResultB ? regExpResultB.splice(1, regExpResultB.length) : []))
-            : txt.substring(p.lastIndex, p.lastIndex + fullMatchB.length),
+          begin: beginEnclose,
+          end: endEnclose,
           lastIndex: p.lastIndex + fullMatchB.length - 1
-        } as CurrentEnclosedResult<T>; // Return what we got
+        } as CurrentEnclosedResult<T>;
       }
       // Something went wrong with enclosed regex since it was never closed.
       return {

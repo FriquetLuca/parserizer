@@ -1,4 +1,4 @@
-import type { CurrentEnclosedResult, CurrentErrorResult, CurrentResult } from "./results"
+import type { CurrentCollapseResult, CurrentEnclosedResult, CurrentErrorResult, CurrentResult, ParserContentResult } from "./results"
 
 export interface Rule<T> {
   type: "any",
@@ -15,7 +15,8 @@ export interface EnclosedRule<T> {
   copy: () => EnclosedRule<T>
   isPattern: (i: number, txt: string) => boolean
   isPatternEnd: (i: number, txt: string) => boolean
-  fetch: (index: number, txt: string, endPattern: (i: number, txt: string) => boolean, patternSet: ParserRules<T>) => CurrentEnclosedResult<T> | CurrentErrorResult<T>
+  fetch: (index: number, txt: string, endPattern: (i: number, txt: string) => boolean, patternSet: ParserRules<T>) => CurrentCollapseResult<T> | CurrentEnclosedResult<T> | CurrentErrorResult<T>
+  collapse?: (begin: string | T, content: ParserContentResult<T>, end: string | T) => string | T
 }
 
 export type ParserRule<T> = Rule<T> | EnclosedRule<T>;

@@ -1,4 +1,4 @@
-import type { CurrentResult, RuleProps, Rule } from "../interfaces";
+import type { RuleProps, Rule, CurrentResult } from "../interfaces";
 
 /**
  * Return a rule to handle the parsing of some content.

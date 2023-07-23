@@ -65,37 +65,62 @@ function defineEnclosedRule<RuleName extends string = "enclosedRule", ResultType
   };
 }
 
+function overrideRules<NewRules extends ParserEnclosedRule<string, unknown>|ParserRule<string, unknown>, RuleName extends string, ResultType extends unknown = string>(enclosedRule: ParserEnclosedRule<RuleName, ResultType>, newRules: NewRules[]) {
+  return { ...enclosedRule, getRules: () => newRules, type: "override" as "override" };
+}
 
-type RuleResult<RuleName extends string, ResultType extends unknown = string> = ReturnType<typeof defineRule<RuleName, ResultType>>;
-type EnclosedRuleResult<RuleName extends string, ResultType extends unknown = string> = ReturnType<typeof defineEnclosedRule<RuleName, ResultType>>;
+type ParserRule<RuleName extends string, ResultType extends unknown = string> = ReturnType<typeof defineRule<RuleName, ResultType>>;
+type ParserEnclosedRule<RuleName extends string, ResultType extends unknown = string> = ReturnType<typeof defineEnclosedRule<RuleName, ResultType>>;
+type ParserEnclosedOverrideRule<NewRules extends ParserEnclosedRule<string, unknown>|ParserRule<string, unknown>, RuleName extends string, ResultType extends unknown = string> = ReturnType<typeof overrideRules<NewRules, RuleName, ResultType>>;
+type ParserAllRules = ParserEnclosedRule<string, unknown>|ParserRule<string, unknown>|ParserEnclosedOverrideRule<any, string, unknown>;
 
 type ParseProps<T> = {
   ruleSet: T[];
   endPattern?: (i: number, t: string) => boolean;
 }
 
-type ParsedResultType<T extends EnclosedRuleResult<string, unknown>|RuleResult<string, unknown>> = {
+type ParsedRule<Rules extends ParserAllRules> = {
   type: "rule";
-  name: Extract<T, { type: "rule" }>["name"];
-  content: ReturnType<Extract<T, { type: "rule" }>["override"]>;
+  name: Extract<Rules, { type: "rule" }>["name"];
+  content: ReturnType<Extract<Rules, { type: "rule" }>["override"]>;
   lastIndex: number;
-} | {
+};
+
+type ParsedEnclosedRule<Rules extends ParserAllRules> = {
   type: "enclosed";
-  name: Extract<T, { type: "enclosed" }>["name"];
+  name: Extract<Rules, { type: "enclosed" }>["name"];
   error: false;
-  begin: ReturnType<Extract<T, { type: "enclosed" }>["overrideOpen"]>;
-  content: ParsedResultType<T>[];
-  end: ReturnType<Extract<T, { type: "enclosed" }>["overrideClose"]>;
+  begin: ReturnType<Extract<Rules, { type: "enclosed" }>["overrideOpen"]>;
+  content: ParsedResultType<Rules>[];
+  end: ReturnType<Extract<Rules, { type: "enclosed" }>["overrideClose"]>;
   lastIndex: number;
 } | {
   type: "enclosed";
-  name: Extract<T, { type: "enclosed"; }>["name"];
+  name: Extract<Rules, { type: "enclosed"; }>["name"];
+  content: null;
+  error: true;
+  lastIndex: number;
+};
+
+type ParsedOverrideRule<Rules extends ParserAllRules> = {
+  type: "override";
+  name: Extract<Rules, { type: "override" }>["name"];
+  error: false;
+  begin: ReturnType<Extract<Rules, { type: "override" }>["overrideOpen"]>;
+  content: ParsedResultType<ReturnType<Extract<Rules, { type: "override" }>["getRules"]>[number]>[];
+  end: ReturnType<Extract<Rules, { type: "override" }>["overrideClose"]>;
+  lastIndex: number;
+} | {
+  type: "override",
+  name: Extract<Rules, { type: "override" }>["name"];
   content: null;
   error: true;
   lastIndex: number;
 }
 
-function parse<T extends EnclosedRuleResult<string, unknown>|RuleResult<string, unknown>>(input: string, options: ParseProps<T>, i: number = 0) {
+type ParsedResultType<Rules extends ParserAllRules> = ParsedRule<Rules> | ParsedEnclosedRule<Rules> | ParsedOverrideRule<Rules>;
+
+function parse<T extends ParserAllRules>(input: string, options: ParseProps<T>, i: number = 0) {
   const subdivided: ParsedResultType<T>[] = []; // A result called subdivided since it's the input subdivided in multiple pieces.
   for(; i < input.length; i++) // Let's navigate the input
   {
@@ -110,7 +135,63 @@ function parse<T extends EnclosedRuleResult<string, unknown>|RuleResult<string, 
     for(let j = 0; j < options.ruleSet.length; j++) // Let's check all the possible patterns
     {
       const currentPattern = options.ruleSet[j];
-      if(currentPattern.type === "enclosed") {
+      if(currentPattern.type === "override") {
+        const enclosedRule = currentPattern.copy();
+        if(enclosedRule.isPattern(i, input)) // It's the pattern, let's execute something
+        {
+          const enclosedOpen = enclosedRule.openedFetched();
+          const fullOpenMatch = enclosedOpen[0];
+          const nestedElements = parse(input, {
+            ruleSet: currentPattern.getRules() as ReturnType<Extract<T, { type: "override" }>["getRules"]>[number],
+            endPattern: enclosedRule.isPatternEnd
+          }, i + fullOpenMatch.length);
+          if(nestedElements.type === "endResult") {
+            const enclosedClose = enclosedRule.closedFetched();
+            const fullCloseMatch = enclosedClose[0];
+            const begin = enclosedRule.overrideOpen(fullOpenMatch, ...enclosedOpen.splice(1, enclosedOpen.length)) as ReturnType<Extract<T, { type: "enclosed" }>["overrideOpen"]>;
+            const end = enclosedRule.overrideClose(fullCloseMatch, ...enclosedClose.splice(1, enclosedClose.length)) as ReturnType<Extract<T, { type: "enclosed" }>["overrideClose"]>;
+            const fetchResult: {
+              type: "override",
+              name: Extract<T, { type: "override" }>["name"],
+              error: false,
+              begin: ReturnType<Extract<T, { type: "override" }>["overrideOpen"]>,
+              content: ParsedResultType<ReturnType<Extract<T, { type: "override" }>["getRules"]>[number]>[],
+              end: ReturnType<Extract<T, { type: "override" }>["overrideClose"]>,
+              lastIndex: number
+            } = {
+              type: "override",
+              name: enclosedRule.name as Extract<T, { type: "override" }>["name"],
+              error: false as false,
+              begin,
+              content: nestedElements.result as ParsedResultType<ReturnType<Extract<T, { type: "override" }>["getRules"]>[number]>[],
+              end,
+              lastIndex: (nestedElements.lastIndex) as number + fullCloseMatch.length - 1
+            };
+            const lineData = countLines(input, i);
+            i = fetchResult.lastIndex;
+            subdivided.push({
+              ...fetchResult,
+              ...lineData,
+            });
+          } else {
+            const fetchResult = {
+              type: "override" as "override",
+              name: enclosedRule.name as Extract<T, { type: "override" }>["name"],
+              content: null,
+              error: true as true,
+              lastIndex: i
+            };
+            const lineData = countLines(input, i);
+            i = fetchResult.lastIndex;
+            subdivided.push({
+              ...fetchResult,
+              ...lineData,
+            });
+          }
+          break; // No need to check more pattern, we've got one already
+        }
+      }
+      else if(currentPattern.type === "enclosed") {
         const enclosedRule = currentPattern.copy();
         if(enclosedRule.isPattern(i, input)) // It's the pattern, let's execute something
         {
@@ -222,17 +303,36 @@ const prts = defineEnclosedRule({
   }
 });
 
+const prtsWithRules = overrideRules(prts, rulesPrt);
+
 const rules = [
   grabWord,
   grabInt,
-  prts
+  prts,
+  prtsWithRules
 ];
 
 
 const parsedResult = parse("hello world, nice to meet you!", {
   ruleSet: rules
 });
+if(parsedResult.result[0].type === "rule") {
+  const prr = parsedResult.result[0]
+  if(prr.name === "word") {
+    prr.content
+  } else {
+    prr.content
+  }
+}
 if(parsedResult.result[0].type === "enclosed") {
+  const prr = parsedResult.result[0]
+  if(prr.name === "parenthesis") {
+    prr.content
+  } else {
+    prr.content
+  }
+}
+if(parsedResult.result[0].type === "override") {
   const prr = parsedResult.result[0]
   if(prr.name === "parenthesis") {
     prr.content

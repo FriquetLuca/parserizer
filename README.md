@@ -1,8 +1,8 @@
 # Parserizer
 
-> A stack-based parsing solution written in typescript.
+> A stack-based parsing solution written in typescript, ideal for writting an understandable transpiler, interpretor or even a compiler.
 
-Parserizer is a stack-based parsing solution written in typescript using Regex for pattern matching.
+Parserizer is a stack-based parsing solution written in typescript where you're using Regex for pattern matching to define your grammar by using either our normal rules or enclosed rules for stack-based grammar. You can even define a new grammar inside enclosed rules for new parsing possibilities, and more!
 
 ## Parser
 
@@ -11,7 +11,7 @@ The main function of the parser is `parse` and is declared as such:
 function parse<T>(input: string, ruleSet: ParserRules<T>): ParserResult<T>;
 ```
 
-The parser is made to parse string content and use a bunch of rules, then it will return the parsed content. The rules will be tested in the order it's referenced in the array, so be careful since order matter when parsing.
+The parser is made to parse the input string content and use a bunch of rules on it, it will return the parsed content when it's done. The rules will be tested in the order it's referenced in the array, so be careful since order matter when parsing your grammar.
 
 ## Rules
 
@@ -26,7 +26,7 @@ The way `parserizer` will handle this is by using two rules generator named `rul
 
 `rule` is the primary rule generator used by parserizer and is defined as:
 ```ts
-function rule<T>({ name, handler }: RuleProps<T>): Rule<T>;
+function rule<T extends unknown = string>({ name, handler }: RuleProps<T>): Rule<T>
 ```
 
 The definition for the rule is defined by the interface:

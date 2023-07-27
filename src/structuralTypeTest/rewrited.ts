@@ -1,5 +1,5 @@
 import { matchWordCharacter } from "../matchers";
-import { countLines } from "../utils";
+import { countLines, duplicateStringContent } from "../utils";
 
 type RegexHandler<ResultType extends unknown = string> = {
   regex: RegExp;
@@ -249,6 +249,8 @@ function parse<T extends ParserAllRules>(input: string, options: ParseProps<T>, 
   };
 }
 
+type Unpack<T> = T extends (infer A)[] ? A : T;
+
 type TransformRule<T> = T extends {
     type: "rule";
     name: infer Name;
@@ -283,6 +285,31 @@ type TransformOverrideEnclosedRule<T> = T extends {
         : never
       : never
     : never;
+
+type StringifyOptions<T extends ParserAllRules, U extends ParsedResultType<T> = ParsedResultType<T>> = {
+  refineElement?: (element: U | string | undefined) => string
+  spacing?: boolean
+  spaceAmount?: number
+}
+
+function stringify<T extends ParserAllRules, U extends ParsedResultType<T>>(nodes: U[], options?: StringifyOptions<T, U>, depth: number = 0): string {
+  const space = options?.spacing ? duplicateStringContent("\t", (options?.spaceAmount ?? 1) * depth) : '';
+  const lineReturn = options?.spacing ? '\r\n' : '';
+  let result = '';
+  for(let i = 0; i < nodes.length; i++) {
+    const node = nodes[i];
+    if(node.type === "enclosed" || node.type === "override") { // This node is a sub element (an array if nothing goes wrong)
+      if(!node.error) {
+        result = `${result}${space}${(options?.refineElement && options.refineElement(node.begin as U)) ?? node.begin}${lineReturn}${stringify(node.content as U[] ?? [], options, depth + 1)}${lineReturn}${space}${(options?.refineElement && options.refineElement(node.end as U)) ?? node.end}${lineReturn}`;
+      }
+    }
+    else { // It's a T or string, ez pz let's write it with some spacing
+      result = `${result}${space}${(options?.refineElement && options.refineElement(node.content as U)) ?? node.content}${lineReturn}`;
+    }
+  }
+  return result;
+}
+
 const grabWord = defineRule({
   name: "word",
   handler: {
@@ -320,11 +347,23 @@ const rules = [
   prts,
   prtsWithRules
 ];
+type usedRulesType = Unpack<typeof rules>
 
-
-const parsedResult = parse("hello world, nice to meet you!", {
+const parsedResult = parse<usedRulesType>("hello world, nice to meet you!", {
   ruleSet: rules
 });
+
+console.log(stringify<usedRulesType, ParsedResultType<usedRulesType>>(parsedResult.result, {
+  refineElement: (element) => {
+    if(typeof element === "string") {
+      return element;
+    }
+    if(element?.type === "enclosed" || element?.type === "override") {
+      return "enclosed something..."
+    }
+    return "";
+  }
+}))
 if(parsedResult.result[0].type === "rule") {
   const prr = parsedResult.result[0]
   if(prr.name === "word") {

@@ -44,38 +44,63 @@ type ParseProps<T> = {
   endPattern?: (i: number, t: string) => boolean;
 }
 
-type ParsedRule<Rules extends ParserAllRules> = TransformRule<Extract<Rules, { type: "rule" }>>;
+export type ParsedRule<Rules extends ParserAllRules> = TransformRule<Extract<Rules, { type: "rule" }>>;
 
+type GetNameProp<T> = T extends { name: infer Name } ? Name extends never ? never : T : T;
 
-type ParsedEnclosedRule<Rules extends ParserAllRules> = {
+export type MergeProperties<T> =
+  GetNameProp<T extends object
+    ? { [K in keyof T]: MergeProperties<T[K]> }
+    : T>
+
+export type ParsedEnclosedRule<Rules extends ParserAllRules> = {
   type: "enclosed";
   name: Extract<Rules, { type: "enclosed" }>["name"];
   error: false;
   begin: ReturnType<Extract<Rules, { type: "enclosed" }>["overrideOpen"]>;
-  content: ParsedResultType<Rules>[];
+  content: MergeProperties<ParsedResultType<Rules>>[];
   end: ReturnType<Extract<Rules, { type: "enclosed" }>["overrideClose"]>;
   lastIndex: number;
+  lines: number;
+  lineChar: number;
 } | {
   type: "enclosed";
   name: Extract<Rules, { type: "enclosed"; }>["name"];
   content: null;
   error: true;
   lastIndex: number;
+  lines: number;
+  lineChar: number;
 };
 
-type ParsedOverrideRule<Rules extends ParserAllRules> = TransformOverrideEnclosedRule<Extract<Rules, { type: "override" }>> | {
+export type ParsedOverrideRule<Rules extends ParserAllRules> = TransformOverrideEnclosedRule<Extract<Rules, { type: "override" }>> | {
   type: "override",
   name: Extract<Rules, { type: "override" }>["name"];
   content: null;
   error: true;
   lastIndex: number;
+  lines: number;
+  lineChar: number;
 }
 
 export type ParsedResultType<Rules extends ParserAllRules> = ParsedRule<Rules> | ParsedEnclosedRule<Rules> | ParsedOverrideRule<Rules>;
 
+export type Parsed<T extends ParserAllRules> = {
+  type: "result"
+  result: MergeProperties<ParsedResultType<T>>[]
+  lastIndex: number
+  lines: number;
+  lineChar: number;
+} | {
+  type: "endResult"
+  result: MergeProperties<ParsedResultType<T>>[]
+  lastIndex: number
+  lines: number;
+  lineChar: number;
+};
 
-export function parse<T extends ParserAllRules>(input: string, options: ParseProps<T>, i: number = 0) {
-    const subdivided: ParsedResultType<T>[] = []; // A result called subdivided since it's the input subdivided in multiple pieces.
+export function parse<T extends ParserAllRules>(input: string, options: ParseProps<T>, i: number = 0): MergeProperties<Parsed<T>> {
+    const subdivided: MergeProperties<ParsedResultType<T>>[] = []; // A result called subdivided since it's the input subdivided in multiple pieces.
     for(; i < input.length; i++) // Let's navigate the input
     {
       if(options.endPattern && options.endPattern(i, input)) // We're in a nested pattern that just ended
@@ -84,7 +109,7 @@ export function parse<T extends ParserAllRules>(input: string, options: ParsePro
           type: "endResult" as "endResult",
           result: subdivided,
           lastIndex: i
-        };
+        } as MergeProperties<Parsed<T>>;
       }
       for(let j = 0; j < options.ruleSet.length; j++) // Let's check all the possible patterns
       {
@@ -112,14 +137,14 @@ export function parse<T extends ParserAllRules>(input: string, options: ParsePro
                   begin,
                   content: nestedElements.result,
                   end,
-                  lastIndex: nestedElements.lastIndex + fullCloseMatch.length - 1
+                  lastIndex: nestedElements.lastIndex + fullCloseMatch.length
                 } as unknown as TransformEnclosedRule<Extract<T, { type: "enclosed" }>, T>;
                 const lineData = countLines(input, i);
                 i = fetchResult.lastIndex;
                 subdivided.push({
                   ...fetchResult,
                   ...lineData,
-                });
+                } as MergeProperties<typeof fetchResult & typeof lineData>);
               } else {
                 const fetchResult = {
                   type: "enclosed" as "enclosed",
@@ -133,7 +158,7 @@ export function parse<T extends ParserAllRules>(input: string, options: ParsePro
                 subdivided.push({
                   ...fetchResult,
                   ...lineData,
-                });
+                } as MergeProperties<typeof fetchResult & typeof lineData>);
               }
             }
             break;
@@ -159,14 +184,14 @@ export function parse<T extends ParserAllRules>(input: string, options: ParsePro
                   begin,
                   content: nestedElements.result,
                   end,
-                  lastIndex: (nestedElements.lastIndex) as number + fullCloseMatch.length - 1
+                  lastIndex: (nestedElements.lastIndex) as number + fullCloseMatch.length
                 };
                 const lineData = countLines(input, i);
                 i = fetchResult.lastIndex;
                 subdivided.push({
                   ...fetchResult,
                   ...lineData,
-                } as unknown as TransformOverrideEnclosedRule<Extract<T, { type: "override" }>>);
+                } as unknown as MergeProperties<TransformOverrideEnclosedRule<Extract<T, { type: "override" }>>>);
               } else {
                 const fetchResult = {
                   type: "override" as "override",
@@ -180,7 +205,7 @@ export function parse<T extends ParserAllRules>(input: string, options: ParsePro
                 subdivided.push({
                   ...fetchResult,
                   ...lineData,
-                });
+                } as MergeProperties<typeof fetchResult & typeof lineData>);
               }
               break; // No need to check more pattern, we've got one already
             }
@@ -201,7 +226,7 @@ export function parse<T extends ParserAllRules>(input: string, options: ParsePro
               subdivided.push({
                 ...fetchResult,
                 ...lineData,
-              });
+              } as MergeProperties<typeof fetchResult & typeof lineData>);
               break; // No need to check more pattern, we've got one already
             }
             break;
@@ -212,6 +237,6 @@ export function parse<T extends ParserAllRules>(input: string, options: ParsePro
       type: "result" as "result",
       result: subdivided,
       lastIndex: i - 1
-    };
+    } as MergeProperties<Parsed<T>>;
   }
   

@@ -36,23 +36,25 @@ for(const testCase of testCases) {
 
 describe('Regex', () => {
   describe('Word', () => {
-    const grabWord = parser.rule({
+    const grabWord = parser.defineRule({
       name: "word",
       handler: {
         regex: /^[^\W\d_]+/
       }
     })
+    const rules = [ grabWord ];const parserized = parser.parse("Hello, my friend's name is {name}.", {
+      ruleSet: rules
+    });
+    
     describe('Parse simple words only', () => {
       describe('Only the words are extracted and spaced by a new line', () => {
         it('should be equal', () => {
-          const parserized = parser.parse("Hello, my friend's name is {name}.", [ grabWord ]);
-          expect(parser.stringify(parserized, { spacing: true })).toEqual("Hello\r\nmy\r\nfriend\r\ns\r\nname\r\nis\r\nname\r\n")
+          expect(parser.stringify(parserized, { spacing: false, newLine: true })).toEqual("Hello\r\nmy\r\nfriend\r\ns\r\nname\r\nis\r\nname\r\n")
         })
       })
       describe('Only the words are extracted and then concatenated into a string', () => {
         it('should be equal', () => {
-          const parserized = parser.parse("Hello, my friend's name is {name}.", [ grabWord ]);
-          expect(parser.stringify(parserized, { spacing: false })).toEqual("Hellomyfriendsnameisname")
+          expect(parser.stringify(parserized, { spacing: false, newLine: false })).toEqual("Hellomyfriendsnameisname")
         })
       })
     })

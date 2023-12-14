@@ -1,5 +1,5 @@
 /**
- * Get the type of the parameter, extending `typeof` to support `class`, `array` and "null" as native options.
+ * Get the type of the parameter, extending `typeof` to support `class`, `array` and `null` as native options.
  * @param parameter An unknown parameter that we want the type from.
  * @returns The type the parameter is from.
  */

@@ -1,26 +1,16 @@
+const numberMatchers = {
+  "integer": /^\d+/,
+  "big-integer": /^\d+n\b/,
+  "coma": /^((\d+([,])?\d+)|(([,])?\d+))/,
+  "dot": /^((\d+([.])?\d+)|(([.])?\d+))/,
+  "coma-or-dot": /^((\d+([.,])?\d+)|(([.,])?\d+))/,
+  "coma-decimal-part": /^([,]\d+)/,
+  "dot-decimal-part": /^([.]\d+)/,
+  "decimal-part": /^([.,]\d+)/,
+}
+
 /**
- * Return a regex to test for an integer.
- * @returns A regex to test for an integer.
+ * Get a regex to test for a number.
+ * @returns A regex to test for a number.
  */
-export const matchInteger = () => /^\d+/; //
-/**
-* Return a regex to test for an integer.
-* @returns A regex to test for an integer.
-*/
-export const matchBigInteger = () => /^\d+n\b/;
-/**
- * Return a regex to test for a float.
- * @returns A regex to test for a float.
- */
-export const matchFloat = (separator: "decimal-part" | "dot" | "coma" | "coma-or-dot") => {
-  switch(separator) {
-    case "coma":
-      return /^((\d+([,])?\d+)|(([,])?\d+))/;
-    case "dot":
-      return /^((\d+([.])?\d+)|(([.])?\d+))/;
-    case "coma-or-dot":
-      return /^((\d+([.,])?\d+)|(([.,])?\d+))/;
-    default:
-      return /^([.,]\d+)/;
-  }
-};
+export const matchNumber = (separator: keyof typeof numberMatchers) => numberMatchers[separator]

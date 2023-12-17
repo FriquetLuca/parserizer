@@ -1,11 +1,23 @@
 import * as parser from "../../src"
 
+const regexTester = (
+  regex: RegExp,
+  tests: ({ content: string; value: string | null; })[],
+) => {
+  let result = true
+  for(const test of tests) {
+    const exec = regex.exec(test.content)
+    result &&= (exec && exec[0]) === test.value
+  }
+  return result
+}
+
 describe('Number Matcher', () => {
   describe('Match Integer Notation', () => {
     it('should be equal', () => {
       expect(
         regexTester(
-          parser.matchers.matchInteger(), 
+          parser.matchers.matchNumber("integer"), 
           [
             {
               content: "123 abc",
@@ -110,7 +122,7 @@ describe('Number Matcher', () => {
     it('should be equal', () => {
       expect(
         regexTester(
-          parser.matchers.matchBigInteger(), 
+          parser.matchers.matchNumber("big-integer"), 
           [
             {
               content: "123n abc",
@@ -147,7 +159,7 @@ describe('Number Matcher', () => {
     it('should be equal', () => {
       expect(
         regexTester(
-          parser.matchers.matchFloat("dot"), 
+          parser.matchers.matchNumber("dot"), 
           [
             {
               content: "123 abc",
@@ -260,7 +272,7 @@ describe('Number Matcher', () => {
     it('should be equal', () => {
       expect(
         regexTester(
-          parser.matchers.matchFloat("coma"), 
+          parser.matchers.matchNumber("coma"), 
           [
             {
               content: "123 abc",
@@ -373,7 +385,7 @@ describe('Number Matcher', () => {
     it('should be equal', () => {
       expect(
         regexTester(
-          parser.matchers.matchFloat("coma-or-dot"), 
+          parser.matchers.matchNumber("coma-or-dot"), 
           [
             {
               content: "123 abc",
@@ -486,7 +498,7 @@ describe('Number Matcher', () => {
     it('should be equal', () => {
       expect(
         regexTester(
-          parser.matchers.matchFloat("decimal-part"), 
+          parser.matchers.matchNumber("decimal-part"), 
           [
             {
               content: "123 abc",
@@ -594,19 +606,230 @@ describe('Number Matcher', () => {
       .toEqual(true)
     })
   })
-})
 
-const regexTester = (
-  regex: RegExp,
-  tests: ({
-    content: string;
-    value: string | null;
-  })[]
-) => {
-  let result = true
-  for(const test of tests) {
-    const exec = regex.exec(test.content)
-    result &&= (exec && exec[0]) === test.value
-  }
-  return result
-}
+  describe('Match Float Coma Decimal Part Notation', () => {
+    it('should be equal', () => {
+      expect(
+        regexTester(
+          parser.matchers.matchNumber("coma-decimal-part"), 
+          [
+            {
+              content: "123 abc",
+              value: null
+            },
+            {
+              content: "123.45 abc",
+              value: null
+            },
+            {
+              content: "123,45 abc",
+              value: null
+            },
+            {
+              content: "0.5 abc",
+              value: null
+            },
+            {
+              content: "0,5 abc",
+              value: null
+            },
+            {
+              content: "0, abc",
+              value: null
+            },
+            {
+              content: "0. abc",
+              value: null
+            },
+            {
+              content: ".5 abc",
+              value: null
+            },
+            {
+              content: ",5 abc",
+              value: ",5"
+            },
+            {
+              content: ".5abc",
+              value: null
+            },
+            {
+              content: ",5abc",
+              value: ",5"
+            },
+            {
+              content: "abc123",
+              value: null
+            },
+            {
+              content: "abc123.",
+              value: null
+            },
+            {
+              content: "abc123,",
+              value: null
+            },
+            {
+              content: "abc123.123",
+              value: null
+            },
+            {
+              content: "abc123,123",
+              value: null
+            },
+            {
+              content: "123abc",
+              value: null
+            },
+            {
+              content: "123.abc",
+              value: null
+            },
+            {
+              content: "123,abc",
+              value: null
+            },
+            {
+              content: "123.123abc",
+              value: null
+            },
+            {
+              content: "123,123abc",
+              value: null
+            },
+            {
+              content: "12.34.56",
+              value: null
+            },
+            {
+              content: "12,34.56",
+              value: null
+            },
+            {
+              content: "12.34,56",
+              value: null
+            },
+            {
+              content: "12,34,56",
+              value: null
+            }
+          ]
+        )
+      )
+      .toEqual(true)
+    })
+  })
+
+  describe('Match Float Dot Decimal Part Notation', () => {
+    it('should be equal', () => {
+      expect(
+        regexTester(
+          parser.matchers.matchNumber("dot-decimal-part"), 
+          [
+            {
+              content: "123 abc",
+              value: null
+            },
+            {
+              content: "123.45 abc",
+              value: null
+            },
+            {
+              content: "123,45 abc",
+              value: null
+            },
+            {
+              content: "0.5 abc",
+              value: null
+            },
+            {
+              content: "0,5 abc",
+              value: null
+            },
+            {
+              content: "0, abc",
+              value: null
+            },
+            {
+              content: "0. abc",
+              value: null
+            },
+            {
+              content: ".5 abc",
+              value: ".5"
+            },
+            {
+              content: ",5 abc",
+              value: null
+            },
+            {
+              content: ".5abc",
+              value: ".5"
+            },
+            {
+              content: ",5abc",
+              value: null
+            },
+            {
+              content: "abc123",
+              value: null
+            },
+            {
+              content: "abc123.",
+              value: null
+            },
+            {
+              content: "abc123,",
+              value: null
+            },
+            {
+              content: "abc123.123",
+              value: null
+            },
+            {
+              content: "abc123,123",
+              value: null
+            },
+            {
+              content: "123abc",
+              value: null
+            },
+            {
+              content: "123.abc",
+              value: null
+            },
+            {
+              content: "123,abc",
+              value: null
+            },
+            {
+              content: "123.123abc",
+              value: null
+            },
+            {
+              content: "123,123abc",
+              value: null
+            },
+            {
+              content: "12.34.56",
+              value: null
+            },
+            {
+              content: "12,34.56",
+              value: null
+            },
+            {
+              content: "12.34,56",
+              value: null
+            },
+            {
+              content: "12,34,56",
+              value: null
+            }
+          ]
+        )
+      )
+      .toEqual(true)
+    })
+  })
+})

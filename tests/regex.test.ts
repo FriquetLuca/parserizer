@@ -1,30 +1,6 @@
 import * as parser from "../src";
 /*
-  const testCases = [
-  "123 abc",
-  "123.45 abc",
-  "123,45 abc",
-  "0.5 abc",
-  "0,5 abc",
-  "0, abc",
-  "0. abc",
-  ".5 abc",
-  ",5 abc",
-  "abc123",
-  "abc123.",
-  "abc123,",
-  "abc123.123",
-  "abc123,123",
-  "123abc",
-  "123.abc",
-  "123,abc",
-  "123.123abc",
-  "123,123abc",
-  "12.34.56",
-  "12,34.56",
-  "12.34,56",
-  "12,34,56"
-];
+  
 
 const regex = /^(([0-9]+([.,])?[0-9]+)|([.,][0-9]+))/;
 console.log("> REGEX");
@@ -42,7 +18,8 @@ describe('Regex', () => {
         regex: /^[^\W\d_]+/
       }
     })
-    const rules = [ grabWord ];const parserized = parser.parse("Hello, my friend's name is {name}.", {
+    const rules = [ grabWord ];
+    const parserized = parser.parse("Hello, my friend's name is {name}.", {
       ruleSet: rules
     });
     
